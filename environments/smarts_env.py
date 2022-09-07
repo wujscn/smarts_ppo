@@ -108,7 +108,15 @@ class SmartsEnv():
         goal = 1 if env_obs.events.reached_goal else 0
         crash = -1 if env_obs.events.collisions else 0
 
-        return 0.01 * progress + goal + crash
+        reward = 0.01 * progress + goal + crash
+
+        if env_obs.events.off_road:
+            reward -= 1
+
+        if env_obs.events.on_shoulder:
+            reward -= 1
+
+        return reward
 
     # action space
     # def action_adapter(self, model_action): 
