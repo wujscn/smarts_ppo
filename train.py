@@ -3,6 +3,10 @@ from configs import cartpole_masked_config, minigrid_config, poc_memory_env_conf
 from docopt import docopt
 from trainer import PPOTrainer
 
+# ignoring warnings
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 def main():
     # Command line arguments via docopt
     _USAGE = """

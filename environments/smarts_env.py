@@ -13,7 +13,7 @@ from smarts.core.agent_interface import NeighborhoodVehicles, RGB
 from smarts.core.controllers import ActionSpaceType
 
 class SmartsEnv():
-    def __init__(self):
+    def __init__(self, scenario_path=[]):
         # TODO(wujs): make it convinient
         # self.ACTION_SPACE = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,))
         self.ACTION_SPACE = gym.spaces.Discrete(4)
@@ -21,7 +21,9 @@ class SmartsEnv():
         self.AGENT_ID = 'Agent-sheng'
         self.states = np.zeros(shape=(80, 80, 9))
 
-        scenario_path = ['scenarios/roundabout']
+        # TODO(wujs): make global var to specific scenario
+        scenario_path = ['scenarios/left_turn']
+        # scenario_path = ['scenarios/roundabout']
         max_episode_steps = 600
 
         # define agent interface
@@ -41,7 +43,7 @@ class SmartsEnv():
             action_adapter=self.action_adapter,
             info_adapter=self.info_adapter,
         )
-        # TODO(wujs): seed
+        # TODO(wujs): deal with seed, make seed random or something
         self._env = HiWayEnv(scenarios=scenario_path, 
                                 agent_specs={self.AGENT_ID: agent_spec}, 
                                 headless=True,
