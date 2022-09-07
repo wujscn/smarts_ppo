@@ -126,7 +126,7 @@ def poc_memory_env_config():
 
 def smarts_config():
     return {
-        "env": "Smarts",
+        "env": "SmartsEnv",
         "gamma": 0.99,
         "lamda": 0.95,
         "updates": 100,

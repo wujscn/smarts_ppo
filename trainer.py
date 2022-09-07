@@ -40,8 +40,8 @@ class PPOTrainer:
         print("Step 1: Init dummy environment")
         dummy_env = create_env(self.config["env"])
         observation_space = dummy_env.observation_space
-        # action_space_shape = (dummy_env.action_space.n,) 
-        action_space_shape = (dummy_env.action_space.shape[0],) # see https://github.com/openai/gym/issues/839
+        action_space_shape = (dummy_env.action_space.n,) 
+        # action_space_shape = (dummy_env.action_space.shape[0],) # see https://github.com/openai/gym/issues/839
         dummy_env.close()
 
         # Init buffer

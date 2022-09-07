@@ -20,7 +20,7 @@ def create_env(env_name:str):
         return CartPole(mask_velocity=True)
     if env_name == "Minigrid":
         return Minigrid()
-    if env_name == "Smarts":
+    if env_name == "SmartsEnv":
         return SmartsEnv()
 
 def polynomial_decay(initial:float, final:float, max_decay_steps:int, power:float, current_step:int) -> float:
