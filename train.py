@@ -1,5 +1,5 @@
 import torch
-from configs import cartpole_masked_config, minigrid_config, poc_memory_env_config
+from configs import cartpole_masked_config, minigrid_config, poc_memory_env_config, smarts_config
 from docopt import docopt
 from trainer import PPOTrainer
 
@@ -27,7 +27,8 @@ def main():
         torch.set_default_tensor_type("torch.FloatTensor")
 
     # Initialize the PPO trainer and commence training
-    trainer = PPOTrainer(cartpole_masked_config(), run_id=run_id, device=device)
+    # trainer = PPOTrainer(cartpole_masked_config(), run_id=run_id, device=device)
+    trainer = PPOTrainer(smarts_config(), run_id=run_id, device=device)
     trainer.run_training()
     trainer.close()
 

@@ -23,8 +23,10 @@ class ActorCriticModel(nn.Module):
             # Case: visual observation is available
             # Visual encoder made of 3 convolutional layers
             self.conv1 = nn.Conv2d(observation_space.shape[0], 32, 8, 4,)
-            self.conv2 = nn.Conv2d(32, 64, 4, 2, 0)
-            self.conv3 = nn.Conv2d(64, 64, 3, 1, 0)
+            # self.conv2 = nn.Conv2d(32, 64, 4, 2, 0) # RuntimeError: Calculated padded input size per channel: (19 x 1). Kernel size: (4 x 4). Kernel size can't be greater than actual input size
+            self.conv2 = nn.Conv2d(32, 64, 1, 2, 0)
+            # self.conv3 = nn.Conv2d(64, 64, 3, 1, 0) # same as above
+            self.conv3 = nn.Conv2d(64, 64, 1, 1, 0)
             nn.init.orthogonal_(self.conv1.weight, np.sqrt(2))
             nn.init.orthogonal_(self.conv2.weight, np.sqrt(2))
             nn.init.orthogonal_(self.conv3.weight, np.sqrt(2))
