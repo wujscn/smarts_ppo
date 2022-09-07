@@ -13,7 +13,7 @@ from collections import deque
 from torch.utils.tensorboard import SummaryWriter
 
 class PPOTrainer:
-    def __init__(self, config:dict, run_id:str="run", device:torch.device=torch.device("cpu")) -> None:
+    def __init__(self, config:dict, run_id:str="run", device:torch.device=torch.device("cpu"), load_model:bool=False) -> None:
         """Initializes all needed training components.
 
         Args:
@@ -50,7 +50,15 @@ class PPOTrainer:
 
         # Init model
         print("Step 3: Init model and optimizer")
-        self.model = ActorCriticModel(self.config, observation_space, action_space_shape).to(self.device)
+        if load_model:
+            model_path = "./models/" + self.run_id + ".nn"
+            state_dict, config = pickle.load(open(model_path, "rb"))
+            self.model = ActorCriticModel(config, observation_space, action_space_shape).to(self.device)
+            self.model.load_state_dict(state_dict)
+            self.model.to(self.device)
+            self.model.eval()
+        else:
+            self.model = ActorCriticModel(self.config, observation_space, action_space_shape).to(self.device)
         self.model.train()
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.lr_schedule["initial"])
 

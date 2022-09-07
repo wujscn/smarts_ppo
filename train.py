@@ -17,10 +17,12 @@ def main():
     Options:
         --run-id=<path>            Specifies the tag for saving the tensorboard summary [default: run].
         --cpu                      Force training on CPU [default: False]
+        --load-model               load model using run-id [default: False]
     """
     options = docopt(_USAGE)
     run_id = options["--run-id"]
     cpu = options["--cpu"]
+    load_model = options["--load-model"]
 
     if not cpu:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,7 +34,7 @@ def main():
 
     # Initialize the PPO trainer and commence training
     # trainer = PPOTrainer(cartpole_masked_config(), run_id=run_id, device=device)
-    trainer = PPOTrainer(smarts_config(), run_id=run_id, device=device)
+    trainer = PPOTrainer(smarts_config(), run_id=run_id, device=device, load_model=load_model)
     trainer.run_training()
     trainer.close()
 
