@@ -129,8 +129,8 @@ def smarts_config():
         "env": "SmartsEnv",
         "gamma": 0.99,
         "lamda": 0.95,
-        "updates": 100,
         "epochs": 4,
+        "updates": 100,
         "n_workers": 1, # 16
         "worker_steps": 256,
         "n_mini_batch": 4,

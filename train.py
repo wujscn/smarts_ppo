@@ -15,7 +15,7 @@ def main():
         train.py --help
     
     Options:
-        --run-id=<path>            Specifies the tag for saving the tensorboard summary [default: run].
+        --run-id=<path>            Specifies the tag for saving the tensorboard summarypyt [default: run].
         --cpu                      Force training on CPU [default: False]
     """
     options = docopt(_USAGE)

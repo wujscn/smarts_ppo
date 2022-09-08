@@ -22,8 +22,9 @@ class SmartsEnv():
         self.states = np.zeros(shape=(80, 80, 9))
 
         # TODO(wujs): make global var to specific scenario
-        scenario_path = ['scenarios/left_turn']
+        # scenario_path = ['scenarios/left_turn']
         # scenario_path = ['scenarios/roundabout']
+        scenario_path = ['scenarios/1_to_2lane_left_turn_t']
         max_episode_steps = 600
 
         # define agent interface
@@ -104,17 +105,26 @@ class SmartsEnv():
 
     # reward function
     def reward_adapter(self, env_obs, env_reward):
-        progress = env_obs.ego_vehicle_state.speed * 0.1
-        goal = 1 if env_obs.events.reached_goal else 0
-        crash = -1 if env_obs.events.collisions else 0
+        # progress = env_obs.ego_vehicle_state.speed * 0.1
+        if env_obs.events.reached_goal:
+            goal = 10
+            print("Hooya! Reach the goal!") 
+        else:
+            goal = 0
 
-        reward = 0.01 * progress + goal + crash
+        reward = goal # 0.01 * progress
 
         if env_obs.events.off_road:
             reward -= 1
+            print("went off_road")
 
-        if env_obs.events.on_shoulder:
-            reward -= 1
+        if env_obs.events.collisions:
+            reward -= 10
+            print("CRASH!") 
+        
+        # if env_obs.events.on_shoulder:
+        #     reward -= 1
+        reward += env_reward + 0.001  # round_1:reward = reward +env_reward
 
         return reward
 
