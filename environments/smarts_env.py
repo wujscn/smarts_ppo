@@ -133,16 +133,18 @@ class SmartsEnv():
             reward -= 1
 
         if env_obs.events.reached_goal:
+            print("goal!")
             reward += 1
         
         if env_obs.events.collisions:
+            print("crash!")
             reward -= 1
 
         return reward + speed_reward
 
     # action space
     def action_adapter(self, model_action):
-        speed = 10
+        speed = 12
         lane = 0
         
         if model_action == 0:
@@ -154,7 +156,7 @@ class SmartsEnv():
         elif model_action == 3:
             speed = 0
         elif model_action == 4:
-            speed = 4
+            speed = 8
         
         # print(speed, lane)
         
