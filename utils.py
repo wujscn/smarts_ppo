@@ -3,7 +3,7 @@ from environments.minigrid_env import Minigrid
 from environments.poc_memory_env import PocMemoryEnv
 from environments.smarts_env import SmartsEnv
 
-def create_env(env_name:str):
+def create_env(env_name:str="SmartsEnv", scenario_path=[], envision=False, visdom=True, sumo=True):
     """Initializes an environment based on the provided environment name.
     
     Args:
@@ -12,16 +12,21 @@ def create_env(env_name:str):
     Returns:
         {env}: Returns the selected environment instance.
     """
-    if env_name == "PocMemoryEnv":
-        return PocMemoryEnv(glob=False, freeze=True)
-    if env_name == "CartPole":
-        return CartPole(mask_velocity=False)
-    if env_name == "CartPoleMasked":
-        return CartPole(mask_velocity=True)
-    if env_name == "Minigrid":
-        return Minigrid()
+    # if env_name == "PocMemoryEnv":
+    #     return PocMemoryEnv(glob=False, freeze=True)
+    # if env_name == "CartPole":
+    #     return CartPole(mask_velocity=False)
+    # if env_name == "CartPoleMasked":
+    #     return CartPole(mask_velocity=True)
+    # if env_name == "Minigrid":
+    #     return Minigrid()
     if env_name == "SmartsEnv":
-        return SmartsEnv()
+        return SmartsEnv(scenario_path=scenario_path,
+            envision=envision,
+            visdom=visdom,
+            sumo=sumo)
+    else:
+        print("only Smarts is surpported.")
 
 def polynomial_decay(initial:float, final:float, max_decay_steps:int, power:float, current_step:int) -> float:
     """Decays hyperparameters polynomially. If power is set to 1.0, the decay behaves linearly. 

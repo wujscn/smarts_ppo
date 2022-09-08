@@ -2,6 +2,7 @@ import torch
 from configs import cartpole_masked_config, minigrid_config, poc_memory_env_config, smarts_config
 from docopt import docopt
 from trainer import PPOTrainer
+from utils import create_env
 
 # ignoring warnings
 import warnings
@@ -18,11 +19,19 @@ def main():
         --run-id=<path>            Specifies the tag for saving the tensorboard summary [default: run].
         --cpu                      Force training on CPU [default: False]
         --load-model               load model using run-id [default: False]
+        --scenario=<path>          Specifies scenario [default: ./scenarios/roundabout].
+        --envision                 envision [default: False].
+        --sumo                     sumo [default: False].
+        --visdom                   visdom [default: False].
     """
     options = docopt(_USAGE)
     run_id = options["--run-id"]
     cpu = options["--cpu"]
     load_model = options["--load-model"]
+    scenario_path = [options["--scenario"]]
+    envision = options["--envision"]
+    sumo = options["--sumo"]
+    visdom = options["--visdom"]
 
     if not cpu:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -12,9 +12,10 @@ from smarts.core.agent import AgentSpec
 from smarts.core.agent_interface import AgentInterface
 from smarts.core.agent_interface import NeighborhoodVehicles, RGB
 from smarts.core.controllers import ActionSpaceType
+from smarts import sstudio
 
 class SmartsEnv():
-    def __init__(self, scenario_path=[]):
+    def __init__(self, scenario_path=[], envision=False, visdom=False, sumo=True, seed=42):
         # TODO(wujs): make it convinient
         # self.ACTION_SPACE = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,))
         self.ACTION_SPACE = gym.spaces.Discrete(5)
@@ -23,8 +24,13 @@ class SmartsEnv():
         self.states = np.zeros(shape=(80, 80, 9))
 
         # TODO(wujs): make global var to specific scenario
-        scenario_path = ['scenarios/left_turn']
-        # scenario_path = ['scenarios/roundabout']
+        if 0 == len(scenario_path):
+            # default path
+            # self.scenario_path = ['scenarios/left_turn']
+            scenario_path = ['scenarios/roundabout']
+        
+        sstudio.build_scenario(scenario_path)
+
         max_episode_steps = 600
 
         # define agent interface
@@ -47,9 +53,11 @@ class SmartsEnv():
         # TODO(wujs): deal with seed, make seed random or something
         self._env = HiWayEnv(scenarios=scenario_path, 
                                 agent_specs={self.AGENT_ID: agent_spec}, 
-                                headless=True,
-                                seed=1, 
-                                visdom=True)
+                                headless= not envision,
+                                sumo_headless= not sumo,
+                                visdom=visdom,
+                                seed=seed, 
+                                )
         self._env.observation_space = self.OBSERVATION_SPACE
         self._env.action_space = self.ACTION_SPACE
         self._env.agent_id = self.AGENT_ID
@@ -105,20 +113,21 @@ class SmartsEnv():
 
     # reward function
     def reward_adapter(self, env_obs, env_reward):
-        # progress = env_obs.ego_vehicle_state.speed * 0.1
+        speed_reward = env_obs.ego_vehicle_state.speed * 0.01
 
         reward = 0
         if env_obs.events.reached_goal:
             reward += 10
-            print("goal!")
 
         if env_obs.events.collisions:
-            reward -= 1
+            reward -= 5
 
         if env_obs.events.off_road:
-            reward -= 1
+            reward -= 5
 
-        return reward + env_reward + 0.01
+        # print("speed", env_obs.ego_vehicle_state.speed)
+
+        return reward + env_reward + speed_reward + 0.01
 
     # action space
     def action_adapter(self, model_action):
@@ -131,10 +140,10 @@ class SmartsEnv():
             lane += 1
         
         if model_action == 3:
-            speed = 0
+            speed = -12
         elif model_action == 4:
             speed = 12
-
+        
         return (speed, lane)
 
     # def action_adapter(self, model_action):
