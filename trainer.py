@@ -124,6 +124,9 @@ class PPOTrainer:
             # Write training statistics to tensorboard
             self._write_training_summary(update, training_stats, episode_result)
 
+            if (update+1) % 10 == 0:
+                self._save_model()
+
         # Save the trained model at the end of the training
         self._save_model()
 

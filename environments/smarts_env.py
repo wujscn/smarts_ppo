@@ -1,4 +1,5 @@
 
+from pyexpat import model
 import secrets
 import gym
 import numpy as np
@@ -16,7 +17,7 @@ class SmartsEnv():
     def __init__(self, scenario_path=[]):
         # TODO(wujs): make it convinient
         # self.ACTION_SPACE = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,))
-        self.ACTION_SPACE = gym.spaces.Discrete(4)
+        self.ACTION_SPACE = gym.spaces.Discrete(5)
         self.OBSERVATION_SPACE = gym.spaces.Box(low=0, high=1, shape=(80, 80, 9))
         self.AGENT_ID = 'Agent-sheng'
         self.states = np.zeros(shape=(80, 80, 9))
@@ -32,7 +33,7 @@ class SmartsEnv():
             waypoints=True,
             neighborhood_vehicles=NeighborhoodVehicles(radius=60),
             rgb=RGB(80, 80, 32/80), 
-            action=ActionSpaceType.Lane,
+            action=ActionSpaceType.LaneWithContinuousSpeed,
         )
 
         # define agent specs
@@ -104,40 +105,41 @@ class SmartsEnv():
 
     # reward function
     def reward_adapter(self, env_obs, env_reward):
-        progress = env_obs.ego_vehicle_state.speed * 0.1
-        goal = 1 if env_obs.events.reached_goal else 0
-        crash = -1 if env_obs.events.collisions else 0
+        # progress = env_obs.ego_vehicle_state.speed * 0.1
 
-        reward = 0.01 * progress + goal + crash
+        reward = 0
+        if env_obs.events.reached_goal:
+            reward += 10
+            print("goal!")
+
+        if env_obs.events.collisions:
+            reward -= 1
 
         if env_obs.events.off_road:
             reward -= 1
 
-        if env_obs.events.on_shoulder:
-            reward -= 1
-
-        return reward
+        return reward + env_reward + 0.01
 
     # action space
-    # def action_adapter(self, model_action): 
-    #     speed = model_action[0] # output (-1, 1)
-    #     speed = (speed - (-1)) * (10 - 0) / (1 - (-1)) # scale to (0, 10)
-        
-    #     speed = np.clip(speed, 0, 10)
-    #     model_action[1] = np.clip(model_action[1], -1, 1)
-
-    #     # discretization
-    #     if model_action[1] < -1/3:
-    #         lane = -1
-    #     elif model_action[1] > 1/3:
-    #         lane = 1
-    #     else:
-    #         lane = 0
-
-    #     return (speed, lane)
     def action_adapter(self, model_action):
-        action_map = ["keep_lane", "slow_down", "change_lane_left", "change_lane_right"]
-        return action_map[model_action]
+        speed = 8
+        lane = 0
+        
+        if model_action == 1:
+            lane -= 1
+        elif model_action == 2:
+            lane += 1
+        
+        if model_action == 3:
+            speed = 0
+        elif model_action == 4:
+            speed = 12
+
+        return (speed, lane)
+
+    # def action_adapter(self, model_action):
+    #     action_map = ["keep_lane", "slow_down", "change_lane_left", "change_lane_right"]
+    #     return action_map[model_action]
 
     # information
     def info_adapter(self, observation, reward, info):
