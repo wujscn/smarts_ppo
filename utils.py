@@ -6,7 +6,7 @@ from environments.smarts_env import SmartsEnv
 # 1_to_2lane_left_turn_t
 # roundabout
 
-def create_env(env_name:str="SmartsEnv", scenario_path=["scenarios/roundabout"], envision=False, visdom=True, sumo=True):
+def create_env(env_name:str="SmartsEnv", scenario_path=["scenarios/roundabout"], envision=False, visdom=False, sumo=False):
     """Initializes an environment based on the provided environment name.
     
     Args:
