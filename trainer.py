@@ -1,8 +1,11 @@
+import imp
+from turtle import pen
 import numpy as np
 import os
 import pickle
 import torch
 import time
+import csv
 from torch import optim
 from buffer import Buffer
 from model import ActorCriticModel
@@ -122,18 +125,33 @@ class PPOTrainer:
             episode_result = self._process_episode_info(episode_infos)
 
             # Print training statistics
-            if episode_result != False:
+            try:
                 if "success_percent" in episode_result:
                     result = "{:4} reward={:.2f} std={:.2f} length={:.1f} std={:.2f} success = {:.2f} pi_loss={:3f} v_loss={:3f} entropy={:.3f} loss={:3f} value={:.3f} advantage={:.3f}".format(
                         update, episode_result["reward_mean"], episode_result["reward_std"], episode_result[
                             "length_mean"], episode_result["length_std"], episode_result["success_percent"],
                         training_stats[0], training_stats[1], training_stats[3], training_stats[2], torch.mean(self.buffer.values), torch.mean(self.buffer.advantages))
+
+                    dic = [torch.tensor(update).cpu().numpy(), torch.tensor(episode_result["reward_mean"]).cpu().numpy(), torch.tensor(episode_result["reward_std"]).cpu().numpy(), torch.tensor(episode_result[
+                        "length_mean"]).cpu().numpy(), torch.tensor(episode_result["length_std"]).cpu().numpy(), torch.tensor(training_stats[0]).cpu().numpy(), torch.tensor(training_stats[1]).cpu().numpy(), torch.tensor(training_stats[3]).cpu().numpy(), torch.tensor(training_stats[2]).cpu().numpy(),  torch.mean(self.buffer.values).cpu().numpy(), torch.mean(self.buffer.advantages).cpu().numpy(), torch.tensor(episode_result["success_percent"]).cpu().numpy()]
+                    with open('./models/data.csv', 'a', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(dic)
+
                 else:
                     result = "{:4} reward={:.2f} std={:.2f} length={:.1f} std={:.2f} pi_loss={:3f} v_loss={:3f} entropy={:.3f} loss={:3f} value={:.3f} advantage={:.3f}".format(
                         update, episode_result["reward_mean"], episode_result[
                             "reward_std"], episode_result["length_mean"], episode_result["length_std"],
                         training_stats[0], training_stats[1], training_stats[3], training_stats[2], torch.mean(self.buffer.values), torch.mean(self.buffer.advantages))
-            print(result)
+
+                    dic = [torch.tensor(update).cpu().numpy(), torch.tensor(episode_result["reward_mean"]).cpu().numpy(), torch.tensor(episode_result["reward_std"]).cpu().numpy(), torch.tensor(episode_result[
+                        "length_mean"]).cpu().numpy(), torch.tensor(episode_result["length_std"]).cpu().numpy(), torch.tensor(training_stats[0]).cpu().numpy(), torch.tensor(training_stats[1]).cpu().numpy(), torch.tensor(training_stats[3]).cpu().numpy(), torch.tensor(training_stats[2]).cpu().numpy(),  torch.mean(self.buffer.values).cpu().numpy(), torch.mean(self.buffer.advantages).cpu().numpy()]
+                    with open('./models/data.csv', 'a', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(dic)
+                print(result)
+            except KeyError:
+                print("Error: KeyError!")
             if update % 10 == 9:
                 self._save_model()
                 # Write training statistics to tensorboard
@@ -163,6 +181,7 @@ class PPOTrainer:
                     self.buffer.cxs[:, t] = self.recurrent_cell[1].squeeze(0)
 
                 # Forward the model to retrieve the policy, the states' value and the recurrent cell states
+                self.model = self.model.to(self.device)
                 policy, value, self.recurrent_cell = self.model(
                     torch.tensor(self.obs), self.recurrent_cell, self.device)
                 self.buffer.values[:, t] = value
@@ -202,6 +221,7 @@ class PPOTrainer:
                 self.obs[w] = obs
 
         # Calculate advantages
+        self.model = self.model.to(self.device)
         _, last_value, _ = self.model(torch.tensor(
             self.obs), self.recurrent_cell, self.device)
         self.buffer.calc_advantages(
@@ -248,6 +268,7 @@ class PPOTrainer:
                 0), samples["cxs"].unsqueeze(0))
 
         # Forward model
+        self.model = self.model.to(self.device)
         policy, value, _ = self.model(
             samples["obs"], recurrent_cell, self.device, self.recurrence["sequence_length"])
 

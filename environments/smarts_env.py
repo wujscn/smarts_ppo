@@ -23,7 +23,7 @@ class SmartsEnv():
         self.ACTION_SPACE = gym.spaces.Discrete(5)
         self.OBSERVATION_SPACE = gym.spaces.Box(
             low=0, high=1, shape=(80, 80, 9))
-        self.AGENT_ID = 'Agent-sheng'
+        self.AGENT_ID = 'Cheese Snow Panther'
         self.states = np.zeros(shape=(80, 80, 9))
 
         # TODO(wujs): make global var to specific scenario
@@ -245,7 +245,7 @@ class SmartsEnv():
         goal = 150 if env_obs.events.reached_goal else - 1
         crash = -20 if env_obs.events.collisions else 0
 
-        reward = 0.01 * progress + goal + crash + \
+        reward = 0.0005 * progress + goal + crash + \
             env_reward + 0.05 * ego_ttc + 0.05 * ego_lane_dist
 
         if env_obs.events.off_road:
@@ -269,19 +269,21 @@ class SmartsEnv():
     #                   "change_lane_left", "change_lane_right"]
     #     return action_map[model_action]
     def action_adapter(self, model_action):
-        speed = 8
+        speed = 10
         lane = 0
 
         if model_action == 1:
             lane -= 1
-            print("Action: Change lane!")
+            speed = 8
+            print("Action: Change to right lane!")
         elif model_action == 2:
             lane += 1
-            print("Action: Change lane!")
+            speed = 8
+            print("Action: Change to left lane!")
 
         if model_action == 3:
-            speed = 0
-            print("Action: Stop!")
+            speed = -20
+            print("Action: Slow down!")
         elif model_action == 4:
             speed = 12
             print("Action: Speed up!")
