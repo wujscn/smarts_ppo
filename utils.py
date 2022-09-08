@@ -3,7 +3,10 @@ from environments.minigrid_env import Minigrid
 from environments.poc_memory_env import PocMemoryEnv
 from environments.smarts_env import SmartsEnv
 
-def create_env(env_name:str="SmartsEnv", scenario_path=[], envision=False, visdom=True, sumo=True):
+# 1_to_2lane_left_turn_t
+# roundabout
+
+def create_env(env_name:str="SmartsEnv", scenario_path=["scenarios/roundabout"], envision=False, visdom=True, sumo=True):
     """Initializes an environment based on the provided environment name.
     
     Args:

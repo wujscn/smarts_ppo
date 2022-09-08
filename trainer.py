@@ -111,23 +111,36 @@ class PPOTrainer:
             episode_result = self._process_episode_info(episode_infos)
 
             # Print training statistics
+            import csv
+            
             try:
                 if "success_percent" in episode_result:
                     result = "{:4} reward={:.2f} std={:.2f} length={:.1f} std={:.2f} success = {:.2f} pi_loss={:3f} v_loss={:3f} entropy={:.3f} loss={:3f} value={:.3f} advantage={:.3f}".format(
-                        update, episode_result["reward_mean"], episode_result["reward_std"], episode_result["length_mean"], episode_result["length_std"], episode_result["success_percent"],
+                        update, episode_result["reward_mean"], episode_result["reward_std"], episode_result[
+                            "length_mean"], episode_result["length_std"], episode_result["success_percent"],
                         training_stats[0], training_stats[1], training_stats[3], training_stats[2], torch.mean(self.buffer.values), torch.mean(self.buffer.advantages))
+
+                    dic = [torch.tensor(update).cpu().numpy(), torch.tensor(episode_result["reward_mean"]).cpu().numpy(), torch.tensor(episode_result["reward_std"]).cpu().numpy(), torch.tensor(episode_result[
+                        "length_mean"]).cpu().numpy(), torch.tensor(episode_result["length_std"]).cpu().numpy(), torch.tensor(training_stats[0]).cpu().numpy(), torch.tensor(training_stats[1]).cpu().numpy(), torch.tensor(training_stats[3]).cpu().numpy(), torch.tensor(training_stats[2]).cpu().numpy(),  torch.mean(self.buffer.values).cpu().numpy(), torch.mean(self.buffer.advantages).cpu().numpy(), torch.tensor(episode_result["success_percent"]).cpu().numpy()]
+                    with open('./models/data.csv', 'a', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(dic)
+
                 else:
                     result = "{:4} reward={:.2f} std={:.2f} length={:.1f} std={:.2f} pi_loss={:3f} v_loss={:3f} entropy={:.3f} loss={:3f} value={:.3f} advantage={:.3f}".format(
-                        update, episode_result["reward_mean"], episode_result["reward_std"], episode_result["length_mean"], episode_result["length_std"], 
+                        update, episode_result["reward_mean"], episode_result[
+                            "reward_std"], episode_result["length_mean"], episode_result["length_std"],
                         training_stats[0], training_stats[1], training_stats[3], training_stats[2], torch.mean(self.buffer.values), torch.mean(self.buffer.advantages))
-                print(result)
-            except:
-                pass
-            
-            # Write training statistics to tensorboard
-            self._write_training_summary(update, training_stats, episode_result)
 
-            if (update+1) % 10 == 0:
+                    dic = [torch.tensor(update).cpu().numpy(), torch.tensor(episode_result["reward_mean"]).cpu().numpy(), torch.tensor(episode_result["reward_std"]).cpu().numpy(), torch.tensor(episode_result[
+                        "length_mean"]).cpu().numpy(), torch.tensor(episode_result["length_std"]).cpu().numpy(), torch.tensor(training_stats[0]).cpu().numpy(), torch.tensor(training_stats[1]).cpu().numpy(), torch.tensor(training_stats[3]).cpu().numpy(), torch.tensor(training_stats[2]).cpu().numpy(),  torch.mean(self.buffer.values).cpu().numpy(), torch.mean(self.buffer.advantages).cpu().numpy()]
+                    with open('./models/data.csv', 'a', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(dic)
+                print(result)
+            except KeyError:
+                print("Error: KeyError!")
+            if update % 10 == 9:
                 self._save_model()
 
         # Save the trained model at the end of the training

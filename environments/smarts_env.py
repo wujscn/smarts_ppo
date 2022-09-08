@@ -10,12 +10,12 @@ import time
 from smarts.env.hiway_env import HiWayEnv
 from smarts.core.agent import AgentSpec
 from smarts.core.agent_interface import AgentInterface
-from smarts.core.agent_interface import NeighborhoodVehicles, RGB
+from smarts.core.agent_interface import NeighborhoodVehicles, RGB, EventConfiguration
 from smarts.core.controllers import ActionSpaceType
 from smarts import sstudio
 
 class SmartsEnv():
-    def __init__(self, scenario_path=[], envision=False, visdom=False, sumo=True, seed=42):
+    def __init__(self, scenario_path=[], envision=False, visdom=False, sumo=True, seed=1):
         # TODO(wujs): make it convinient
         # self.ACTION_SPACE = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,))
         self.ACTION_SPACE = gym.spaces.Discrete(5)
@@ -40,6 +40,7 @@ class SmartsEnv():
             neighborhood_vehicles=NeighborhoodVehicles(radius=60),
             rgb=RGB(80, 80, 32/80), 
             action=ActionSpaceType.LaneWithContinuousSpeed,
+            event_configuration=EventConfiguration(not_moving_time=20, not_moving_distance=1),
         )
 
         # define agent specs
@@ -113,36 +114,49 @@ class SmartsEnv():
 
     # reward function
     def reward_adapter(self, env_obs, env_reward):
-        speed_reward = env_obs.ego_vehicle_state.speed * 0.01
+        speed_reward = env_obs.ego_vehicle_state.speed * 0.001
 
         reward = 0
+        # if env_obs.events.reached_goal:
+        #     reward += 10
+
+        # if env_obs.events.collisions:
+        #     reward -= 30
+
+        # if env_obs.events.off_road:
+        #     reward -= 5
+
+        # if env_obs.events.on_shoulder:
+        #     reward -= 2
+
+        if env_obs.events.not_moving:
+            reward -= 1
+
         if env_obs.events.reached_goal:
-            reward += 10
-
+            reward += 1
+        
         if env_obs.events.collisions:
-            reward -= 5
+            reward -= 1
 
-        if env_obs.events.off_road:
-            reward -= 5
-
-        # print("speed", env_obs.ego_vehicle_state.speed)
-
-        return reward + env_reward + speed_reward + 0.01
+        return reward + speed_reward
 
     # action space
     def action_adapter(self, model_action):
-        speed = 8
+        speed = 10
         lane = 0
         
-        if model_action == 1:
+        if model_action == 0:
+            pass
+        elif model_action == 1:
             lane -= 1
         elif model_action == 2:
             lane += 1
-        
-        if model_action == 3:
-            speed = -12
+        elif model_action == 3:
+            speed = 0
         elif model_action == 4:
-            speed = 12
+            speed = 4
+        
+        # print(speed, lane)
         
         return (speed, lane)
 
