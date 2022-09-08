@@ -5,7 +5,8 @@ from trainer import PPOTrainer
 
 # ignoring warnings
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 def main():
     # Command line arguments via docopt
@@ -34,9 +35,11 @@ def main():
 
     # Initialize the PPO trainer and commence training
     # trainer = PPOTrainer(cartpole_masked_config(), run_id=run_id, device=device)
-    trainer = PPOTrainer(smarts_config(), run_id=run_id, device=device, load_model=load_model)
+    trainer = PPOTrainer(smarts_config(), run_id=run_id,
+                         device=device, load_model=load_model)
     trainer.run_training()
     trainer.close()
+
 
 if __name__ == "__main__":
     main()
